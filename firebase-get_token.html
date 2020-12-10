@@ -1,0 +1,80 @@
+<html>
+    <body>
+        <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-app.js">
+        </script>
+        <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-analytics.js">
+        </script>
+        <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-auth.js">
+        </script>
+        <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-functions.js">
+        </script>
+        <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-messaging.js">
+        </script>
+        <script src="https://www.gstatic.com/firebasejs/7.14.4/firebase-performance.js">
+        </script>
+
+
+        <div>
+            ProjectID: <input id="projectId"/>
+            ApiKey:<input id="apiKey" style="width: 40%"/>
+            
+            <button onclick="run()">submit</button><br>
+            
+            <textarea cols="100" disabled="" id="configValue" rows="10" style="overflow:auto;resize:none"></textarea>
+
+            <br/>
+            Google Tokens:
+            <font id="googleStatus" style="font-weight: bolder;font-size: 1rem"></font>
+        </div>
+
+        <script>
+            function run() {
+
+		        var project_id_value = document.getElementById("projectId").value;
+		        var api_key_value = document.getElementById("apiKey").value;
+		        window.location.href = window.location.protocol + '//' +
+		            window.location.hostname + ":" + window.location.port  + 
+					window.location.pathname +"?projectId=" + project_id_value +"&apiKey=" + api_key_value;
+		    }
+
+		    var url_string = window.location.href; //window.location.href
+		    var url = new URL(url_string);
+
+		    var project_id = url.searchParams.get("projectId");
+		    var api_key = url.searchParams.get("apiKey");
+
+
+		    document.getElementById("projectId").value = project_id;
+		    document.getElementById("apiKey").value = api_key;
+
+		    var firebaseConfig = {
+		        apiKey: api_key,
+		        authDomain: project_id + ".firebaseapp.com",
+		        databaseURL: "https://" + project_id + ".firebaseio.com",
+		        projectId: project_id,
+		        storageBucket: project_id + ".appspot.com"
+		    };
+
+
+		    var myJSON = JSON.stringify(firebaseConfig, null, "\t");
+		    document.getElementById("configValue").value = myJSON;
+		    var defaultProject = firebase.initializeApp(firebaseConfig);
+		    var auth = firebase.auth();
+
+
+		    //Google Authen
+		    var googleProvider = new firebase.auth.GoogleAuthProvider();
+		    googleProvider.addScope('https://www.googleapis.com/auth/contacts.readonly');
+
+		    auth.signInWithPopup(googleProvider).then(function (result) {
+		        var accessToken = result.credential.accessToken;
+				var idToken = result.user.xa;
+		        document.getElementById("googleStatus").innerHTML =
+		            '<font style="font-weight: bolder" color="red">BUG!!! Token: ' + idToken + '</font>';
+		    }).catch(function (error) {
+		        document.getElementById("googleStatus").innerHTML =
+		            '<font style="font-weight: bolder" color="green">Not Vulnerable!!! Error: ' + error + '</font>';
+		    });
+        </script>
+    </body>
+</html>
